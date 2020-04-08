@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.arduino_farm_app"
+        applicationId "eu.codlab.arduino"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

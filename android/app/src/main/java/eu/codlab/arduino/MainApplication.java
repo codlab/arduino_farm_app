@@ -1,4 +1,4 @@
-package com.arduino_farm_app;
+package eu.codlab.arduino;
 
 import android.app.Application;
 import android.content.Context;
