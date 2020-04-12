@@ -26,7 +26,8 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import { instance } from './src/BLEController';
+import { Peripheral } from './src/BLEController';
+import { BLEBot } from 'src/BLEBot';
 
 declare var global: {HermesInternal: null | {}};
 
@@ -43,36 +44,10 @@ export default class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
-    instance.addListener("peripheral_discovered", peripheral => console.warn(peripheral));
   }
 
   componentDidMount() {
-    instance.checkPermission().then(result => instance.scan())
-    .then(devices => {
-      console.warn("devices", {devices});
-      if(!devices || devices.length <= 0) return Promise.resolve(undefined);
-      const peripheral = devices[0];
-
-      return instance.connect(peripheral)
-      .then(done => instance.retrieveServices(peripheral))
-      .then(services => {
-        console.warn(services.characteristics);
-        const notification = services ? services.characteristics.find(c => "Notify" === c.properties.Notify) : null;
-        console.warn({notification});
-
-        if(notification) {
-          return instance.startNotification(peripheral, notification);
-        } else throw "invalid";
-      }).then(() => new Promise((resolve, reject) => {
-        setTimeout(() => {
-          instance.disconnect(peripheral)
-          .then(r => resolve(r))
-          .catch(err => reject(err));
-        }, 5000);
-      }))
-      .then(() => console.warn("disconnected !"));
-    })
-    .catch(err => console.warn(err));
+    BLEBot.start().then(() => {}).catch(err => console.warn(err));
   }
 
   componentWillUnmount() {

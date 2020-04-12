@@ -35,7 +35,7 @@ export interface PeripheralInfo2 {
     characteristics: Characteristic[]
 }
 
-class BLEController extends EventEmitter2 {
+class BLEController_ extends EventEmitter2 {
     private _started: boolean = false;
     private _scanning: boolean = false;
     private _wait_scan_end?: (peripherals: Peripheral[]) => void;
@@ -70,8 +70,8 @@ class BLEController extends EventEmitter2 {
         this._wait_scan_end = undefined;
     }
 
-    private peripheral_disconnected: ParamInterface = () => {
-        
+    private peripheral_disconnected: ParamInterface = ({peripheral, status}) => {
+        this.emit("peripheral_disconnected", peripheral);
     }
 
     private did_update_value_for_characteristic: ParamInterface = ({ value, peripheral, characteristic, service }) => {
@@ -135,6 +135,14 @@ class BLEController extends EventEmitter2 {
         }
     }
 
+    isPeripheralConnected = async (peripheral: Peripheral) => {
+        try {
+            return await BleManager.isPeripheralConnected(peripheral.id, []);
+        } catch(e) {
+            return false;
+        }
+    }
+
     retrieveServices = async (peripheral: Peripheral) => {
         return BleManager.retrieveServices(peripheral.id) as Promise<PeripheralInfo2>;
     }
@@ -148,4 +156,4 @@ class BLEController extends EventEmitter2 {
     }
 }
 
-export const instance = new BLEController();
+export const BLEController = new BLEController_();
