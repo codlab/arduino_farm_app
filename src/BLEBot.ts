@@ -16,12 +16,17 @@ export class BLEBot_ extends EventEmitter2 {
     super();
 
     BLEController.addListener("peripheral_disconnected", this._peripheral_disconnected);
+    BLEController.addListener("update", this._update);
   }
 
   private _peripheral_disconnected = (peripheral: string) => {
     if(null != this._peripheral && this._peripheral.id === peripheral) {
       this.setStatus(BLEBotStatus.STOPPED);
     }
+  }
+
+  private _update = (update: string) => {
+    this.emit("update", update);
   }
 
   public async start() {
@@ -42,6 +47,7 @@ export class BLEBot_ extends EventEmitter2 {
 
   public setStatus(status: BLEBotStatus) {
     this._status = status;
+    console.warn({status});
     this.emit("status", this._status);
   }
 
@@ -52,6 +58,12 @@ export class BLEBot_ extends EventEmitter2 {
     const devices = await BLEController.scan();
     if(!devices || devices.length <= 0) return null;
     const peripheral = devices[0];
+
+    try {
+      await BLEController.disconnect(peripheral);
+    } catch(e) {
+
+    }
 
     const connected = await BLEController.connect(peripheral);
     if(!connected) return null;

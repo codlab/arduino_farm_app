@@ -13,21 +13,13 @@ import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
-  View,
-  Text,
   StatusBar,
-  TouchableNativeFeedback,
+  Image,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-import { Peripheral } from './src/BLEController';
-import { BLEBot } from 'src/BLEBot';
+import { Container, Header, Title, Content, Button, Icon, Card, CardItem, Text, Body, Left, Right, IconNB, View } from "native-base";
+import Background from "./assets/background.jpg";
+import { BLEBot, BLEBotStatus } from './src/BLEBot';
 
 declare var global: {HermesInternal: null | {}};
 
@@ -36,7 +28,7 @@ interface AppProps {
 }
 
 interface AppState {
-
+  uptime?: number
 }
 
 export default class App extends Component<AppProps, AppState> {
@@ -44,10 +36,39 @@ export default class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
+    this.state = {};
+
+    BLEBot.addListener("status", this.bleStatus);
+    BLEBot.addListener("update", this.onUpdate);
+  }
+
+  onUpdate = (update: string) => {
+    if(update) {
+      const split = update.split(" ");
+      if(split.length >= 4) {
+        this.setState({
+          uptime: parseInt(split[3])
+        })
+      }
+    }
+  };
+
+  tryRestart(immediate?: boolean) {
+    if(immediate) {
+      BLEBot.start().then(() => {}).catch(err => console.warn(err));
+    } else {
+      setTimeout(() => this.tryRestart(true), 5000);
+    }
+  }
+
+  private bleStatus = (status:BLEBotStatus) => {
+    if(status == BLEBotStatus.STOPPED) {
+      this.tryRestart();
+    }
   }
 
   componentDidMount() {
-    BLEBot.start().then(() => {}).catch(err => console.warn(err));
+    this.tryRestart(true);
   }
 
   componentWillUnmount() {
@@ -55,48 +76,43 @@ export default class App extends Component<AppProps, AppState> {
   }
 
   render() {
+    const { uptime } = this.state;
     return (
       <>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" translucent={true} backgroundColor={'transparent'}/>
         <SafeAreaView>
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.scrollView}>
-            <Header />
-            {global.HermesInternal == null ? null : (
-              <View style={styles.engine}>
-                <Text style={styles.footer}>Engine: Hermes</Text>
-              </View>
-            )}
-            <View style={styles.body}>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Step One</Text>
-                <Text style={styles.sectionDescription}>
-                  Edit <Text style={styles.highlight}>App.tsx</Text> to change
-                  this screen and then come back to see your edits.
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>See Your Changes</Text>
-                <Text style={styles.sectionDescription}>
-                  <ReloadInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Debug</Text>
-                <Text style={styles.sectionDescription}>
-                  <DebugInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Learn More</Text>
-                <Text style={styles.sectionDescription}>
-                  Read the docs to discover what to do next:
-                </Text>
-              </View>
-              <LearnMoreLinks />
+          <View style={{width: "100%", height: "100%"}}>
+            <Image source={Background}  style={{width: "100%", height: "100%"}}/>
+            <View style={styles.mainView}>
+                <ScrollView
+                  contentInsetAdjustmentBehavior="automatic"
+                  style={styles.scrollView}>
+
+                    <View style={{width: 1, height: 24}} />
+
+                    {
+                      !!uptime && <Text style={{color:"white"}}>{uptime}</Text>
+                    }
+                    <Text>
+                      Working for {}
+                    </Text>
+                  <Card>
+                    <CardItem bordered>
+                      <Text style={{marginBottom: 10}}>
+                        The idea with React Native Elements is more about component structure than actual design.
+                      </Text>
+                    </CardItem>
+                  </Card>
+                  <Card>
+                    <CardItem bordered>
+                      <Text style={{marginBottom: 10}}>
+                        The idea with React Native Elements is more about component structure than actual design.
+                      </Text>
+                    </CardItem>
+                  </Card>
+                </ScrollView>
             </View>
-          </ScrollView>
+          </View>
         </SafeAreaView>
       </>
     );  
@@ -104,40 +120,16 @@ export default class App extends Component<AppProps, AppState> {
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
+  scrollView: { },
   engine: {
     position: 'absolute',
     right: 0,
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
+  body: { },
+  mainView: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    backgroundColor: "rgba(0, 0, 0, 0.7)"
+  }
 });

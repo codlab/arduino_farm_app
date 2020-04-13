@@ -56,7 +56,6 @@ class BLEController_ extends EventEmitter2 {
             };
             this.emit("peripheral_discovered", new_p);
             this._peripherals.push(new_p);
-            console.warn(new_p);
         }
     }
 
@@ -75,7 +74,7 @@ class BLEController_ extends EventEmitter2 {
     }
 
     private did_update_value_for_characteristic: ParamInterface = ({ value, peripheral, characteristic, service }) => {
-        console.warn({service, characteristic, value: bytesToString(value)});
+        this.emit("update", bytesToString(value));
     }
 
     constructor() {
@@ -121,7 +120,8 @@ class BLEController_ extends EventEmitter2 {
     }
 
     connect = async (peripheral: Peripheral) => {
-        const connected: any = await BleManager.connect(peripheral.id);
+        var connected: any = await BleManager.connect(peripheral.id);
+        connected = await this.isPeripheralConnected(peripheral);
         return !!connected;
     }
 
