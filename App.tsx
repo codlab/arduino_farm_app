@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 
 import { Container, Header, Title, Content, Button, Icon, Card, CardItem, Text, Body, Left, Right, IconNB, View } from "native-base";
-import Background from "./assets/background.jpg";
+import Background from "./assets/background_2.jpg";
 import { BLEBot, BLEBotStatus } from './src/BLEBot';
 
 declare var global: {HermesInternal: null | {}};
