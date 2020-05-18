@@ -20,6 +20,7 @@ import {
 import { Container, Header, Title, Content, Button, Icon, Card, CardItem, Text, Body, Left, Right, IconNB, View } from "native-base";
 import Background from "./assets/background_2.jpg";
 import { BLEBot, BLEBotStatus } from './src/BLEBot';
+import DateUtils from './src/utils/DateUtils';
 
 declare var global: {HermesInternal: null | {}};
 
@@ -74,6 +75,7 @@ export default class App extends Component<AppProps, AppState> {
   componentWillUnmount() {
 
   }
+  
 
   render() {
     const { uptime } = this.state;
@@ -91,7 +93,7 @@ export default class App extends Component<AppProps, AppState> {
                     <View style={{width: 1, height: 24}} />
 
                     {
-                      !!uptime && <Text style={{color:"white"}}>{uptime}</Text>
+                      !!uptime && <Text style={{color:"white"}}>{DateUtils.display(uptime)}</Text>
                     }
                     <Text>
                       Working for {}
